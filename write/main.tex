@@ -468,7 +468,7 @@ The model matrix is represented by $X$ and $\beta$ are the coefficients to fit. 
 
 All covariates we might use are listed at the beginning of Section \ref{injuries}. In addition to using these as predictors alone, we use interactions between them as covariates. To begin, we choose which pairs, triplets, and quadruplets of interacting covariates to include in parametrising the rate parameter $\lambda$.
 
-To build the negative binomial regression model, we start from the main-effects model (which consists of nine covariates as predictors, and no interactions), and add one interaction at a time. The ``year'' covariate is modelled as a smooth spline with two knots, and both age variables are modelled as a smooth spline with five knots. 
+To build the negative binomial regression model, we start from the main-effects model (which consists of nine covariates as predictors, and no interactions), and add one interaction at a time. The ``year'' covariate is modelled as a smooth spline with two knots, and both age variables are modelled as a smooth spline with \hl{five} knots. 
 
 The algorithm is:
 \begin{enumerate}
