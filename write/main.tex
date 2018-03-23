@@ -91,7 +91,7 @@ sep=0pt, node distance=0.4]
 
 Death and disability due to road-traffic crashes ... . We predict injury and fatality rates (the number per distance travelled) as functions of the specifics of the crash. We are interested in the role of the striking-vehicle covariates as well as the pattern of injury rates as they pertain to the casualties of crashes \citep{Feleke2017,Scholes2017a}.
 
-The primary data source for our model of road-traffic injuries is the Stats19 database. These are records of all road-traffic injuries reported to the police, where each entry (row) corresponds to one injury or fatality, which we refer to in general as ``casualties''. We use this source to count the total number of events of each type.
+The primary data source for our model of road-traffic injuries and fatalities is the Stats19 database. These are records of all road-traffic injuries reported to the police, where each entry (row) corresponds to one injury or fatality, which we refer to in general as ``casualties''. We use this source to count the total number of events of each type.
 
 We group the records into ``types'' according to the specifications of the crash and resulting casualties. We refer to these specifics as predictors or covariates. The predictors we use are: casualty mode, casualty demographic group (casualty age and casualty gender), casualty severity, strike mode, striker demographic group (striker age and striker gender), road type, and year. %The ``striker'' is defined as the driver of the largest other vehicle in the collision. 
 They are listed in Table \ref{indices}, along with the possible values they take in the dataset. Then we define the multidimensional array of casualty counts as $I_{a_{\text{cas}},g_{\text{cas}},m_{\text{cas}},a_{\text{str}},g_{\text{str}},m_{\text{str}},c,t,y}$.
@@ -497,56 +497,56 @@ These plots highlight some problems with the distance data. E.g., there is a ver
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{NOVpredYear.pdf}
-\caption{\small Sum of injuries caused by no other vehicle for each year.}
+\caption{\small Mean casualty rate caused by no other vehicle for each year.}
 \label{NOVpredYear}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{NOVpredAge2015.pdf}
-\caption{\small Sum of injuries caused by no other vehicle for each casualty age group in 2015.}
+\caption{\small Sum of casualties caused by no other vehicle for each casualty age group in 2015.}
 \label{NOVpredAge2015}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{pred6year.pdf}
-\caption{\small Sum of injuries caused by any vehicle for each year.}
+\caption{\small Mean casualty rate caused by any vehicle for each year.}
 \label{pred6year}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{pred6Age2015.pdf}
-\caption{\small Sum of injuries caused by any vehicle for each casualty age group in 2015.}
+\caption{\small Sum of casualties caused by any vehicle for each casualty age group in 2015.}
 \label{pred6Age2015}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{pred6yearCar.pdf}
-\caption{\small Sum of injuries caused by car for each year.}
+\caption{\small Mean casualty rate caused by car for each year.}
 \label{pred6yearCar}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{pred6Age2015Car.pdf}
-\caption{\small Sum of injuries caused by car for each casualty age group in 2015.}
+\caption{\small Sum of casualties caused by car for each casualty age group in 2015.}
 \label{pred6Age2015Car}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{pred6yearMC.pdf}
-\caption{\small Sum of injuries caused by female motorcyclists for each year.}
+\caption{\small Mean casualty rate caused by female motorcyclists for each year.}
 \label{pred6yearMC}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{pred6Age2015MC.pdf}
-\caption{\small Sum of injuries caused by female motorcyclists for each striker age group in 2015.}
+\caption{\small Sum of casualties caused by female motorcyclists for each striker age group in 2015.}
 \label{pred6Age2015MC}
 \end{figure}
 
