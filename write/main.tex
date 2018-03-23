@@ -85,29 +85,26 @@ sep=0pt, node distance=0.4]
 \begin{document}
 \maketitle
 
-\abstract{We present a method to generate a predictive model for numbers of fatalities and injuries resulting from road-traffic collisions, itemised by the specifics of the collision. We apply the methodology to data for England spanning the years 2005 to 2015. Our unit of risk is: number of casualties (injuries or fatalities), per km travelled by the casualty, per km travelled by the striker, per year. There is one rate per road type, per casualty severity, per casualty demographic group, per striker demographic group, per casualty travel mode, per striker travel mode, per year. We use three different road types, three levels of casualty severity, and seven travel modes. To estimate the exposure (the distance travelled), we use numerous sources of administrative data.}
+\abstract{We present a predictive model for the numbers of fatalities and injuries resulting from road-traffic collisions in England, itemised by the specifics of the collision. We estimate numbers by calculating risks: the number of casualties (injuries or fatalities), per km travelled by the casualty, per km travelled by the striker, per year. To estimate the exposure (the distance travelled), we use numerous sources of administrative data. We estimate one rate per road type, per casualty severity, per casualty demographic group, per striker demographic group, per casualty travel mode, per striker travel mode, per year.}
 
 \section{Introduction}
 
-Death and disability due to road-traffic crashes ... . We predict injury and fatality rates as number per distance travelled, as functions of the specifics of the crash. We are interested in the role of the striking-vehicle covariates, as well as the pattern of injury rates as they pertain to the casualties of crashes \citep{Feleke2017,Scholes2017a}.
+Death and disability due to road-traffic crashes ... . We predict injury and fatality rates (the number per distance travelled) as functions of the specifics of the crash. We are interested in the role of the striking-vehicle covariates as well as the pattern of injury rates as they pertain to the casualties of crashes \citep{Feleke2017,Scholes2017a}.
 
-Our model of road-traffic injuries requires synthesis of data from many sources. The primary source is the Stats19 database. These are records of all road-traffic injuries reported to the police, where each entry (row) corresponds to one injury or fatality, which we refer to in general as ``casualties''. We use this source to count the total number of events of each type.
+The primary data source for our model of road-traffic injuries is the Stats19 database. These are records of all road-traffic injuries reported to the police, where each entry (row) corresponds to one injury or fatality, which we refer to in general as ``casualties''. We use this source to count the total number of events of each type.
 
-The records are grouped into ``types'' according to the specifications of the crash and resulting casualties. We refer to these specifics as predictors or covariates. We model casualty counts as functions of these predictors. The predictors we use are: casualty mode, casualty demographic group (casualty age and casualty gender), casualty severity, strike mode, striker demographic group (striker age and striker gender), road type, and year. The ``striker'' is defined as the driver of the largest other vehicle in the collision.
+We group the records into ``types'' according to the specifications of the crash and resulting casualties. We refer to these specifics as predictors or covariates. The predictors we use are: casualty mode, casualty demographic group (casualty age and casualty gender), casualty severity, strike mode, striker demographic group (striker age and striker gender), road type, and year. %The ``striker'' is defined as the driver of the largest other vehicle in the collision. 
+They are listed in Table \ref{indices}, along with the possible values they take in the dataset. Then we define the multidimensional array of casualty counts as $I_{a_{\text{cas}},g_{\text{cas}},m_{\text{cas}},a_{\text{str}},g_{\text{str}},m_{\text{str}},c,t,y}$.
+
+The casualty counts are to be understood in terms of exposure: what amount of exposure to risk led to how many casualties. We measure exposure in terms of distance travelled. We must therefore estimate the distance travelled by each demographic subgroup by each mode on each road type in each year. %These data are not readily available, and must be constructed from numerous different sources.
+
+Then we describe the casualty counts as a smooth function of the predictors, offset by the distance travelled per casualty and per striker. We use a regression model to relate the covariates to the casualty counts in a smooth manner that allows the sharing of support across the (sometimes sparse) counts of casualties. 
 
 \hl{Do we, in parallel, present a model for no-other-vehicle crashes, which would include pedestrian falls from a different source, and has as predictors only casualty mode, casualty demographic group (casualty age and casualty gender), casualty severity, road type, and year?} \citep{Methorst2017,Ward2005}
 
-%The present work is concerned with the construction of a temporal model of road-traffic injuries. A spatial model would also be possible, but at present we consider England only, and England as a whole.
-
-The casualty counts are to be understood in terms of exposure: what amount of exposure to risk led to how many casualties. We measure exposure in terms of distance travelled. We must therefore estimate the distance travelled by each demographic subgroup by each mode on each road type in each year. These data are not readily available, and must be constructed from numerous different sources.
-
-In order to know both the number of people on the roads and the number of vehicles on the road, we must have a sense of vehicle occupancy. We achieve this by further subdividing the group travel distances as passengers or non-passengers.
-
-The set of predictors, which form the indices of our data, is shown in Table \ref{indices}. We describe the number of casualties, $I_{a_{\text{cas}},g_{\text{cas}},m_{\text{cas}},a_{\text{str}},g_{\text{str}},m_{\text{str}},c,t,y}$, as a smooth function of the predictors and the distance travelled per casualty, $A_{a,g,m,t,y}^{\text{(cas)}}$, and per striker, $A_{a,g,m,t,y}^{\text{(str)}}$. We use a regression model to relate the covariates to the casualty counts in a smooth manner that allows the sharing of support across the (sometimes sparse) counts of casualties. 
-
-The distances travelled ($A_{a,g,m,t,y}^{\text{(cas)}}$ and $A_{a,g,m,t,y}^{\text{(str)}}$) are unknown. $A_{a,g,m,t,y}$ denotes the total distance travelled by people in demographic group $\{a,g\}$, by mode $m$, on road type $t$, in year $y$. $A_{a,g,m,t,y}^{\text{(cas)}}$ and $A_{a,g,m,t,y}^{\text{(str)}}$ might differ (a) in terms of having different age-group categories $a$, and (b) due to the inclusion of passengers in the former but not the latter. We construct them from various data sources in a process described in Section \ref{exp}.
-
 A future development to our methodology would be to include a spatial component, as in \citet{Boulieri2016}. 
+
+The rest of the paper is structured as follows. In Section \ref{exp} we describe how we construct the distances travelled for the population in such a way that it provides a plausible offset for the casualty counts. In Section \ref{injuries} we describe the processing of the casualty data. In Section \ref{regression} we describe the regression modelling. In Section \ref{results} we present some results: the estimated rates of injury and fatality.
 
 \begin{table}[ht]
 \begin{center}
@@ -116,21 +113,26 @@ A future development to our methodology would be to include a spatial component,
 \label{indices}
 Index & Name & Values \\
 \hline
+\multicolumn{3}{c}{\textit{Predictors}}\\
+\hline
 $a$ & Age groups & 0--105\\
 $c$ & Casualty severity & Fatal \\
 & & Serious \\
 & & Slight \\
 $g$ & Gender & Female, male \\
 $m$ & Transport modes& Pedestrian, cyclist,\\
-& & car/taxi, motorbike, bus, \\
-& & HGV, LGV \\
-$r$& Role & Casualty (cas) \\
-& & Striker (str) \\
-$s$ & Scenarios & (User specified)\\
+& & car/taxi, motorbike, \\
+& & bus, HGV, LGV \\
 $t$ & Road type & Motorway \\
 & & A \\
 & & B, C, unclassified \\
 $y$ & Year & 2005--2015\\
+\hline
+\multicolumn{3}{c}{\textit{Other indices}}\\
+\hline
+$r$& Role & Casualty (cas) \\
+& & Striker (str) \\
+$s$ & Scenarios & (User specified)\\
 $z$ & Passenger& No (0) \\
 & & Yes (1) \\
 \hline
@@ -141,11 +143,13 @@ $z$ & Passenger& No (0) \\
 
 \section{Exposure: distance travelled}\label{exp}
 
-To estimate distance travelled, we use a number of data sources, as no single one reports distances at the itemised level we require. This Section describes how we use the various sources. 
+Our exposure to risk is defined as the distance travelled by the casualty group and the distance travelled by the striker group, stratified by the relevant covariates. We define these as $A_{a,g,m,t,y}^{\text{(cas)}}$ and $A_{a,g,m,t,y}^{\text{(str)}}$. $A_{a,g,m,t,y}$ denotes the total distance travelled by people in demographic group $\{a,g\}$, by mode $m$, on road type $t$, in year $y$. $A_{a,g,m,t,y}^{\text{(cas)}}$ and $A_{a,g,m,t,y}^{\text{(str)}}$ might differ (a) in terms of having different age-group categories $a$, and (b) due to the inclusion of passengers in the former but not the latter. 
 
-We assume traffic count data to provide an accurate representation of the total distance travelled by different modes on different road types (RTS data, Section \ref{rts}). We use it to scale up survey data, which forms a baseline estimate for total travel on any road type, for most but not all of the categories (NTS data, Section \ref{nts}). We allocate distances to three road types using a heuristic method so that in total the distance travelled on a road is a fair approximation to the count data (Section \ref{distribute}). For the subset of groups for which there are no relevant data from the survey we use license data (Section \ref{dvla}). Finally, we smooth the resulting estimates (Section \ref{smooth}).
+As these are not known values, we use a number of data sources to estimate them.  We construct them via a complete array, $B$, that includes all covariates: $B=B_{a,g,m,t,y,z}$. This includes an additional index, $z$, that denotes whether travel is taken as a passenger or not. This allows us to estimate both  the number of people and the number of vehicles on the roads. Then we define the casualty exposure as $$A_{a,g,m,t,y}^{\text{(cas)}}=\sum_{z=0,1}B_{a,g,m,t,y,z}$$ and the striker exposure as $$A_{a,g,m,t,y}^{\text{(str)}}=B_{a,g,m,t,y,z=0}.$$
 
-We use the datasets, listed in Table \ref{timetraveldata}, to construct the distance-travelled arrays ($A$) via a complete array, $B$, that includes all covariates: $B=B_{a,g,m,t,y,z}$. Then we define the casualty exposure as $$A_{a,g,m,t,y}^{\text{(cas)}}=\sum_{z=0,1}B_{a,g,m,t,y,z}$$ and the striker exposure as $$A_{a,g,m,t,y}^{\text{(str)}}=B_{a,g,m,t,y,z=0}.$$
+We use the datasets listed in Table \ref{timetraveldata} to construct $B$. First, we use vehicle road--distance data, which estimates the total distance travelled per year per road type by each mode Section \ref{rts}). We take these to be the true totals to which the distances should sum, as they are more objective than survey data with which we combine them. 
+
+The survey data with which we combine them are from the National Travel Survey (Section \ref{nts}). These data provide demographic travel information. By combining these two data sources, we can allocate distances to three road types using a heuristic method so that in total the distance travelled on a road is a fair approximation to the ``true'' total (Section \ref{distribute}). For the subset of groups for which there are no relevant data from the survey we use license data (Section \ref{dvla}). Finally, we smooth the resulting estimates (Section \ref{smooth}).
 
 \begin{table}[h]
 \centering
@@ -162,7 +166,7 @@ $L_{a,g,m}$ & License-holder data from the DVLA\footnote{Data for other years ar
 \label{timetraveldata}
 \end{table}
 
-\subsection{Vehicle count data}\label{rts}
+\subsection{Vehicle road--distance data}\label{rts}
 
 The backbone of our distance data is data from road traffic statistics (RTS) pertaining to road usage. RTS estimates the total distance travelled by each mode on each road type in each year using automatic traffic counters and manual counts. We denote this dataset $R_{m,t,y}$. 
 
@@ -180,7 +184,7 @@ Each trip in the dataset might consist of more than one stage, and therefore mor
 
 Each person in the dataset has an assigned weight, according to the perceived representativeness of the person based on their demographic description. Each trip also has a weight, that accounts both for the person taking the trip, and the day on which the trip was made.\footnote{See \url{https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/550854/nts-technical-report-2015.pdf} for details of NTS methodology}
 
-In order to use these data alongside the Stats19 data, we must (a) distribute each trip made by each individual in the population to the three road types, and (b) fill in the gaps: The NTS data lack information on bus drivers and lorry drivers.\footnote{We assume that there are no lorry passengers} ``Bus driver'' is not a mode available to persons filling in the survey, and we find that lorry driving is under-reported, so we instead populate these data using information from the Driver and Vehicle Licensing Agency (DVLA, Section \ref{dvla}).
+In order to use these data alongside the Stats19 data, we must (a) distribute each trip made by each individual in the population to the three road types, and (b) fill in the gaps: The NTS data lack information on bus drivers and lorry drivers.\footnote{We assume that there are no lorry passengers} ``Bus driver'' is not a mode available to persons filling in the survey, and we find that lorry driving is under-reported, so we instead populate these data using information from the Driver and Vehicle Licensing Agency (Section \ref{dvla}).
 
 \subsubsection{Matching NTS data to RTS data}\label{match}
 
@@ -189,11 +193,13 @@ We find that the NTS data estimate total travel in England to be less than that 
                   y(j)=y,z(j)=0}}D_{j}}$$ 
 where $m(j)=m$ and $y(j)=y$ give the mode and year of trip $j$, and $z(j)=0$ restricts us to counting only drivers. I.e., for each mode and for each year, we sum the total distance travelled on all road types in the RTS dataset, and sum the distance travelled by all people on all trips from the NTS dataset, and take their ratio as the scaling factor.
 
-\begin{figure}[H]
+\begin{figure}[!b]
+\begin{minipage}{\textwidth}
 \centering
 \includegraphics[width=0.7\textwidth]{NTSvsTRA.pdf}
-\caption[Estimated average distance travelled per person per year over time.]{\small Estimated average distance travelled per person per year over time. For the RTS estimates, in navy, we use the total distance covered in England\footnote{\url{https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/610721/tra4215.ods}} divided by the total population in England\footnote{\url{https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland/mid2015/ukandregionalpopulationestimates18382015.zip}}. For the NTS estimates, in pink, we sum the total distance travelled by mode\footnote{The `modes' are e.g. `Non-household car - driver', and `Household car - driver'; i.e., drivers and not passengers}, weighted according to the NTS-provided trip weights, and divide by the total weight of the participants of the survey.}
+\caption[Estimated average distance travelled per person per year over time.]{\small Estimated average distance travelled per person per year over time. For the RTS estimates, in navy, we use the total distance covered in England\footnote{\url{https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/610721/tra4215.ods}} divided by the total population in England\protect\footnote{\url{https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland/mid2015/ukandregionalpopulationestimates18382015.zip}}. For the NTS estimates, in pink, we sum the total distance travelled by mode\footnote{The `modes' are e.g. `Non-household car - driver', and `Household car - driver'; i.e., drivers and not passengers}, weighted according to the NTS-provided trip weights, and divide by the total weight of the participants of the survey.}
 \label{total}
+\end{minipage}
 \end{figure}
 
 
@@ -238,7 +244,7 @@ m=\text{motorcycle} & 12 & 60 & 5 \\
 m=\text{van} & 10 & 50 & 5 \\
 \end{array}\end{equation}
 
-We use these functions to distribute all trips in the NTS dataset, regardless of passenger status. Pedestrian trips are distributed as cyclist trips, and taxi, minicab and bus trips are distributed as car trips.
+We use these functions to distribute all trips in the NTS dataset, regardless of passenger status. As we have no data for pedestrian trips, we distribute them as $U_{m,t=B}=3$ with the remaining distance attributed to A roads, and taxi, minicab and bus trips are distributed as car trips.
 
 Figure \ref{carMF30} shows how $f_{m,t}$ distributes car journeys differently from how they would be distributed were we to apportion each journey according to the same (mode-specific) proportions. We see that, as car journeys taken by males tend to be longer, more of the distance is attributed to motorways, whereas for females, where there are more short journeys, more of the distance travelled is attributed to B, C and unclassified roads.
 
@@ -252,7 +258,7 @@ Figure \ref{carMF30} shows how $f_{m,t}$ distributes car journeys differently fr
 
 \subsection{DVLA data}\label{dvla}
 
-NTS data do not provide useful information on lorry travel (see Figure \ref{total}). We therefore assume all NTS ``van/lorry'' trips to be van trips, and we use a separate data source for lorry travel. We use the same method to estimate bus driver travel, i.e. the total distance travelled by buses (whereas the NTS data provide information on bus \text{passengers}).
+NTS data do not provide useful information on lorry travel (Figure \ref{total}). We therefore assume all NTS ``van/lorry'' trips to be van trips, and we use a separate data source for lorry travel. We use the same method to estimate bus driver travel, i.e. the total distance travelled by buses (whereas the NTS data provide information on bus \text{passengers}).
 
 The RTS-provided estimates for total bus and HGV travel are used directly to understand the total distances travelled by the vehicles. These distances are distributed among the population according to use license-holder data from the DVLA as follows:
 \begin{equation}
@@ -409,7 +415,7 @@ where $\mathcal{S}_d$ is a smooth spline with $d$ degrees of freedom.
 
 \section{Casualties}\label{injuries}
 
-The Stats19 database lists 2,137,625 road-traffic injuries and fatalities for the years 2005--2015. We process these data in order to group the casualties according to nine predictors: year, striker age, casualty age, road type, strike mode, casualty mode, casualty gender, casualty severity, striker gender. Note that the Stats19 database does not distinguish between casualties and strikers: we define these ourselves in processing the data, choosing the largest party as the striking mode and any other parties as casualty modes. Their marginal distributions are shown in Figure \ref{descriptive}.
+The Stats19 database lists 2,137,625 road-traffic injuries and fatalities for the years 2005--2015. We process these data in order to group the casualties according to nine predictors: year, striker age, casualty age, road type, strike mode, casualty mode, casualty gender, casualty severity, striker gender. Note that the Stats19 database does not distinguish between casualties and strikers: we define these ourselves in processing the data, choosing the largest party as the striking mode. Their marginal distributions are shown in Figure \ref{descriptive}.
 
 \begin{figure}[H]
 \centering
@@ -424,7 +430,7 @@ Finally, we select age groupings for both the casualty and striker ages, so that
 
 %\section{Missing data}
 
-\section{Regression modelling}
+\section{Regression modelling}\label{regression}
 
 We seek to build a model for estimating the number of casualties sustained by road users by fitting a negative binomial model to data from the Stats19 database. We make estimates for each combination of: casualty severity, road type, year, strike mode, casualty mode, striker demographic group, and casualty demographic group. The number of casualties in each group is assumed to follow a negative binomial distribution with its own rate, $\lambda$. The covariates determine the rate $\lambda$ in fitting the model. Thus we say that $\lambda$ is parametrised by the covariates.
 
@@ -482,7 +488,7 @@ The algorithm is:
 \item\textbf{end for}
 \end{enumerate}
 
-\section{Results for baseline}
+\section{Results for baseline}\label{results}
 
 We plot some results for certain sections of the set in Figures \ref{NOVpredYear}--\ref{pred6Age2015MC}. Predictions are summed over each subgroup and plotted for each gender and each road type. Raw estimates are faded in the background.
 
