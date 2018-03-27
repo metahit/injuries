@@ -158,9 +158,10 @@ The survey data with which we combine them are from the National Travel Survey (
 %\begin{tabular}{cll}
 Label & Description & Source & Years & Geographical region \\
 \hline
-$R_{m,t,y}$ & Total miles driven on different road types by vehicle type & RTS & 2005--2015 & England \\
+$R_{m,t,y}$ & Total miles driven on different road types by vehicle type\footnote{\url{https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/610721/tra4215.ods}} & RTS & 2005--2015 & England \\
 $D_{j}$ & Distance travelled on trip $j$ in NTS database & NTS & 2005--2015 & England \\
 $L_{a,g,m}$ & License-holder data from the DVLA\footnote{Data for other years are missing and/or improbable. We use license type D (full) and D (auto) for bus drivers and C1E and C1 full and auto for HGV: \myurl} & DVLA & 2015 & GB \\
+$N_{a,g,y}$ & License-holder data from the DVLA\footnote{\url{https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland/mid2015/ukandregionalpopulationestimates18382015.zip}} & ONS & 2005--2015 & England \\
 \hline
 \end{tabular}
 \label{timetraveldata}
@@ -190,32 +191,33 @@ In order to use these data alongside the Stats19 data, we must (a) distribute ea
 
 We find that the NTS data estimate total travel in England to be less than that predicted by RTS (Figure \ref{total}). It is unclear why this should be the case. Assuming RTS data to be more reliable estimates of total distance travelled, and therefore a better indicator of exposure to events that might result in a record in the Stats19 database, we scale NTS trip weights by the following factor:
  $$\rho_{m,y}=\frac{\sum_{t}R_{m,t,y}}{\sum_{\substack{j:m(j)=m,\\
-                  y(j)=y,z(j)=0}}D_{j}}$$ 
-where $m(j)=m$ and $y(j)=y$ give the mode and year of trip $j$, and $z(j)=0$ restricts us to counting only drivers. I.e., for each mode and for each year, we sum the total distance travelled on all road types in the RTS dataset, and sum the distance travelled by all people on all trips from the NTS dataset, and take their ratio as the scaling factor.
+                  y(j)=y,z(j)=0}}\left(D_{j}\cdot W_{j}\right)}\cdot \frac{\sum_{i:y(i)=y}V_{i}}{\sum_{a,g}N_{a,g,y}}$$ 
+where $m(j)=m$ and $y(j)=y$ give the mode and year of trip $j$, and $z(j)=0$ restricts us to counting only drivers. $W_j$ are the trip weights from the NTS, $V_i$ the person weights, and $N_{a,g,y}$ are population counts. I.e., for each mode and for each year, we sum the total distance travelled on all road types in the RTS dataset, and sum the distance travelled by all people on all trips from the NTS dataset, divide each by the contributing population to yield an average, and take their ratio as the scaling factor.
 
 \begin{figure}[!b]
-\begin{minipage}{\textwidth}
 \centering
-\includegraphics[width=0.7\textwidth]{NTSvsTRA.pdf}
-\caption[Estimated average distance travelled per person per year over time.]{\small Estimated average distance travelled per person per year over time. For the RTS estimates, in navy, we use the total distance covered in England\footnote{\url{https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/610721/tra4215.ods}} divided by the total population in England\protect\footnote{\url{https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland/mid2015/ukandregionalpopulationestimates18382015.zip}}. For the NTS estimates, in pink, we sum the total distance travelled by mode\footnote{The `modes' are e.g. `Non-household car - driver', and `Household car - driver'; i.e., drivers and not passengers}, weighted according to the NTS-provided trip weights, and divide by the total weight of the participants of the survey.}
+\includegraphics[width=0.6\textwidth]{NTSvsTRA.pdf}
+\caption[Estimated average distance travelled per person per year over time.]{\small Estimated average distance travelled per person per year over time. For the RTS estimates, in navy, we use the total distance covered in England divided by the total population in England. For the NTS estimates, in pink, we sum the total distance travelled by mode, weighted according to the NTS-provided trip weights, and divide by the total weight of the participants of the survey.}
 \label{total}
-\end{minipage}
 \end{figure}
 
 
 Hence, we are assuming that the RTS data are accurate\footnote{\url{https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/524848/annual-methodology-note.pdf}. Reasons that RTS might overestimate: a) the growth assumption for minor roads; b) if lots of lorry and van drivers reside in Wales and Scotland but cover a lot of ground in England, without a reciprocal effect.} and the NTS data an underestimate; further, we assume that the distances recorded are representative of true distances, and that the person weighting is representative, but the number of trips is not. I.e., we assume that there were more of the same trips, by the same people, that were not reported in the NTS travel diary. Thus we are effectively increasing the trip weight. %\footnote{The NTS methodology (\url{http://doc.ukdataservice.ac.uk/doc/7559/mrdoc/pdf/7559_nts_technical_report_2016.pdf}) includes a procedure for weighting individuals and, subsequently, for weighting trips, in which the individual's weight is included. Then to increase the number of trips per user we increase the trip weight.}  
 
 With this factor, we have an equivalent constraint to Equation \ref{B}, that all the listed journeys should add up to the total distance travelled per mode, per year:
-\begin{equation}\sum_{t}R_{m,t,y} = \rho_{m,y} \smashoperator{\sum_{\substack{j:m(j)=m,\\y(j)=y,\\z(j)=0}}}D_{j},\end{equation}
+\begin{equation}\sum_{t}R_{m,t,y} = \rho_{m,y} \smashoperator{\sum_{\substack{j:m(j)=m,\\y(j)=y,\\z(j)=0}}}\left(D_{j}\cdot W_{j}\right)\cdot\frac{\sum_{a,g}N_{a,g,y}}{\sum_{i:y(i)=y}V_{i}},\end{equation}
 which relates to our target array, $B$, disaggregated also by age and gender, as follows:
-\begin{equation}\sum_{t}B_{a,g,m,t,y,z=0} = \rho_{m,y} \smashoperator{\sum_{\substack{j:a(j)=a,\\g(j)=g,m(j)=m,\\y(j)=y,z(j)=0}}}D_{j}.\end{equation}
+\begin{equation}\sum_{t}B_{a,g,m,t,y,z=0} = \rho_{m,y} \smashoperator{\sum_{\substack{j:a(j)=a,\\g(j)=g,m(j)=m,\\y(j)=y,z(j)=0}}}\left(D_{j}\cdot W_{j}\right)\cdot\frac{\sum_{a,g}N_{a,g,y}}{\sum_{i:y(i)=y}V_{i}}.\end{equation}
 We assume this to be the true total distance travelled (as a non-passenger) by persons in demographic group $\{a,g\}$ by mode $m$ (excluding bus and lorry) in year $y$.
 
 %Note that $m(j)$ is the main mode of trip $j$. Some trips report also a cycle or walking time, e.g. duration of the journey to the bus stop. These are converted to distances by regressing walking/cycling distances against duration, age and gender for walking/cycling trips and making predictions for the minor-mode trips. These distances are subtracted from the distances of the main-mode trip, and new trips are added with mode labels ``extra walking'' and ``extra cycling''. Both parts for a trip with a resulting major distance less than zero are removed. The net gain in trip number is 46,655.
 
 \subsubsection{Distributing NTS data to road types}\label{distribute}
 
-We now seek some functions $f_{m,t}(D_j)$ that will divide each trip distance $D_j$, taken by mode $m(j)$, into three distances on the three road types, so that the distances add up to $D_j$. Then we can estimate the total distance travelled by a demographic group by a mode on a road type by summing all relevant distances as $$B_{a,g,m,t,y,z=0}= \rho_{m,y}\smashoperator{\sum_{\substack{j:a(j)=a,\\g(j)=g,m(j)=m,\\y(j)=y,z(j)=0}}}f_{m(j),t}\left(D_{j}\right),
+We now seek some functions $f_{m,t}(D_j)$ that will divide each trip distance $D_j$, taken by mode $m(j)$, into three distances on the three road types, so that the distances add up to $D_j$. Then we can estimate the total distance travelled by a demographic group by a mode on a road type by summing all relevant distances as $$B_{a,g,m,t,y,z=0}= \rho_{m,y}
+\smashoperator{\sum_{\substack{j:a(j)=a,\\g(j)=g,m(j)=m,\\y(j)=y,z(j)=0}}}\left(W_j\cdot f_{m(j),t}\left(D_{j}\right)\right)\cdot
+\frac{N_{a,g,y}}
+{\smashoperator{\sum_{\substack{i:a(i)=a,\\g(i)=g,y(i)=y}}}V_{i}},
 \quad  \text{ subject to } \quad\sum_t f_{m(j),t}(D_j)=D_j.$$
 
 We employ a crude division scheme for $f_{m,t}$. We define thresholds $U_{m,t}$ such that the first $U_{m,t=\text{B}}$ km travelled on a journey by mode $m$ are attributed to road type ``B, C, or unclassified'', and the next $U_{m,t=\text{A}}$ are attributed to road type ``A''. Any remaining distance is spent on road type ``motorway'', with the proviso that the remaining distance exceeds $U_{m,t=\text{M}}$ km. It is otherwise added to the total for ``A''. 
@@ -250,7 +252,7 @@ Figure \ref{carMF30} shows how $f_{m,t}$ distributes car journeys differently fr
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{carMF30.pdf}
+\includegraphics[width=0.5\textwidth]{carMF30.pdf}
 \caption[Proportion of total distance travelled by car by male and female 30--39 year olds on each road type.]{\small Proportion of total distance travelled by car by male and female 30--39 year olds on each road type: the ratio of car distance on road type $m$ to car distance on all road types. At arrow origins, the proportion is the same as the total car--road proportions according to the RTS. At arrows points are the proportions when road distances are distributed according to the function $f_{m,t}$. Note that the distributions at the origins are the same for male and female, but differ at the points.}
 \label{carMF30}
 \end{figure}
@@ -273,14 +275,14 @@ Note also the noisiness in motorcycle data in Figure \ref{NTStrajectoriesperson}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{NTStrajectories.pdf}
+\includegraphics[width=0.6\textwidth]{NTStrajectories.pdf}
 \caption{\small Estimated total distance travelled by mode and road type over time.}
 \label{NTStrajectories}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{NTStrajectoriesperson.pdf}
+\includegraphics[width=0.5\textwidth]{NTStrajectoriesperson.pdf}
 \caption{\small Estimated total distance driven by mode and demographic over time. Colours blue and red indicate female and male groups, respectively. Lighter shades indicate younger age groups. The median ages of the age groups are: 20, 27, 35, 42, 50, and 64.}
 \label{NTStrajectoriesperson}
 \end{figure}
@@ -291,12 +293,17 @@ To correct for errant zero entries, we smooth these data, shown for drivers and 
 
 We use a logistic model to decide if a distance should be zero or non-zero, expecting, for example, that the distance driven by children is zero. We then apply a log-normal regression to all non-zero values. We then predict distances for all rows for which the probability of being non-zero is greater than 0.1.
 
-The model for the distances, $B_{a,g,m,t,y,z}$, was
+The model for the distances, $B_{a,g,m,t,y,z}$, is
 \begin{align}
-\log(\tilde{B}_{a,g,m,t,y,z}) \sim & \mathcal{N}(\log(\mu_{a,g,m,t,y,z}),\sigma^2)\label{smoothEq}\\
+\log({B}_{a,g,m,t,y,z}) \sim & \mathcal{N}(\log(\mu_{a,g,m,t,y,z}),\sigma^2)\label{smoothEq}\\
 \log(\mu_{a,g,m,t,y,z}) =& f(m:(\mathcal{S}_1(y)+g\times z+\mathcal{S}_1(y):\mathcal{S}_8(a)+g:(\mathcal{S}_6(a)+t:z+t:\mathcal{S}_3(a):z)))
 \end{align}
 where $\mathcal{S}_d$ is a smooth spline with $d$ degrees of freedom.
+
+Defining $\pi_{a,g,m,t,y,z}$ as the probability that the true distance is greater than zero, we estimate the smooth distance-travelled array, $\tilde{B}$, as:
+$$\tilde{B}_{a,g,m,t,y,z}=\left\{\begin{array}{ll}\pi_{a,g,m,t,y,z}\mu_{a,g,m,t,y,z} & \pi_{a,g,m,t,y,z}>0.1\\ 0 & \pi_{a,g,m,t,y,z} \leq 0.1 \end{array}\right.$$  
+
+Finally, we calculate the exposures as $$A_{a,g,m,t,y}^{\text{(cas)}}=\sum_{z=0,1}\tilde{B}_{a,g,m,t,y,z}\quad\text{and}\quad A_{a,g,m,t,y}^{\text{(str)}}=\tilde{B}_{a,g,m,t,y,z=0}.$$
 
 %The fit is not brilliant, e.g. the blue motorcyclists in Figure \ref{smoothdrive} who aren't in Figure \ref{NTStrajectoriesperson}. Further, I wonder if it would be sensible to smooth at an earlier stage, e.g. Section \ref{match}, as we now have numbers that do not necessarily add up to the RTS totals.
 
@@ -419,7 +426,7 @@ The Stats19 database lists 2,137,625 road-traffic injuries and fatalities for th
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{descriptive.pdf}
+\includegraphics[width=0.6\textwidth]{descriptive.pdf}
 \caption{\small Marginal distributions of all casualties in the Stats19 database from 2005 to 2015.}
 \label{descriptive}
 \end{figure}
@@ -458,7 +465,7 @@ We augment the Stats19 dataset by adding to each year-mode-road-demographic grou
 Then we have all components for the model defined as
 \begin{align}
 I_{a,a',m,m',g,g',c,t,y}&\sim \text{NB}(\lambda_{a,a',m,m',g,g',c,t,y},\theta) \\
-\log\left(\lambda_{a,a',m,m',g,g',c,t,y}\right) &= {\beta_0} +\log(A_{a,g,m,t,y}^{\text{(cas)}})+\log(A_{a',g',m',t,y}^{\text{(str)}})+\sum_{i=3}^n\beta_iX_i.
+\log\left(\lambda_{a,a',m,m',g,g',c,t,y}\right) &= {\beta_0} +\log(A_{a,g,m,t,y}^{\text{(cas)}})+\log(A_{a',g',m',t,y}^{\text{(str)}})+\sum_{i=1}^n\beta_iX_i.
 \end{align}
 
 We omit safety-in-numbers exponents on the basis that there are no published coefficients appropriate to a country-level dataset, and our dataset is insufficient to learn them directly \citep{Aldred2017,Elvik2017}. We show in supplementary material the model that results when we try to learn these as additional parameters (?).
@@ -476,87 +483,102 @@ All covariates we might use are listed at the beginning of Section \ref{injuries
 
 To build the negative binomial regression model, we start from the main-effects model (which consists of nine covariates as predictors, and no interactions), and add one interaction at a time. The ``year'' covariate is modelled as a smooth spline with two knots, and both age variables are modelled as a smooth spline with \hl{five} knots. 
 
+We aim to minimise Akaike's information criterion (AIC) \citep{Akaike1983} in the model we build. This metric quantifies goodness of fit with an accompany penalty for the complexity of the model, proxied by the number of parameters.
+
 The algorithm is:
 \begin{enumerate}
 \item Set $\mathcal{M}$ as the nine main-effects model
-\item \textbf{for} i in 1:N \textbf{do:}
-\begin{enumerate}
 \item Define the set of possible additional interactions $\mathscr{I}$
 \item Calculate AIC for all models $\mathcal{M+I}$ where $\mathcal{I}\in\mathscr{I}$
+\item \textbf{while} $\min_{\mathscr{I}}\text{AIC}(\mathcal{M+I})<\text{AIC}(\mathcal{M})$ \textbf{do:}
+\begin{enumerate}
 \item Set $\mathcal{M}\leftarrow\mathcal{M+I^*}$, where $\mathcal{M+I^*}$ is the model with minimal AIC
+\item Redefine the set of possible additional interactions $\mathscr{I}$
+\item Calculate AIC for all models $\mathcal{M+I}$ where $\mathcal{I}\in\mathscr{I}$
 \end{enumerate}
-\item\textbf{end for}
+\item\textbf{end while}
 \end{enumerate}
 
-\section{Results for baseline}\label{results}
+The ``set of possible additional interactions $\mathscr{I}$'' are those those up to order $n=3$, subject to the condition that all interactions of order $n-1$ that are contained in $\mathcal{I}$ already exist in $\mathcal{M}$. Thus, it is a forward selection algorithm to build an interaction hierarchy model.
+
+We cease building the model at the point at which the AIC begins increasing. For the NOV model, this is after 27 additions.
+
+\section{Results: estimated rates / fit to data}\label{results}
 
 We plot some results for certain sections of the set in Figures \ref{NOVpredYear}--\ref{pred6Age2015MC}. Predictions are summed over each subgroup and plotted for each gender and each road type. Raw estimates are faded in the background.
 
-These plots highlight some problems with the distance data. E.g., there is a very high rate of females injured on motorcycles on motorways in crashes with no other vehicle; this might be explained by an underestimation of time spent on motorways.
+These plots highlight some problems with the distance data. E.g., there is a very high rate of females injured on motorcycles on motorways in crashes with no other vehicle (Figure \ref{NOVpredAge2015}). This can be explained by the estimation that a very small distance is travelled on motorways, combined with a small expected number of casualties. The result is that the rate is very high. The same problem is apparent in the heavy goods panel of the same figure.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{NOVpredYear.pdf}
+\includegraphics[width=0.6\textwidth]{NOVpredYear.pdf}
 \caption{\small Mean casualty rate caused by no other vehicle for each year.}
 \label{NOVpredYear}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{NOVpredAge2015.pdf}
+\includegraphics[width=0.6\textwidth]{NOVpredAge2015.pdf}
 \caption{\small Sum of casualties caused by no other vehicle for each casualty age group in 2015.}
 \label{NOVpredAge2015}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{pred6year.pdf}
+\includegraphics[width=0.6\textwidth]{pred6year.pdf}
 \caption{\small Mean casualty rate caused by any vehicle for each year.}
 \label{pred6year}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{pred6Age2015.pdf}
+\includegraphics[width=0.6\textwidth]{pred6Age2015.pdf}
 \caption{\small Sum of casualties caused by any vehicle for each casualty age group in 2015.}
 \label{pred6Age2015}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{pred6yearCar.pdf}
+\includegraphics[width=0.6\textwidth]{pred6yearCar.pdf}
 \caption{\small Mean casualty rate caused by car for each year.}
 \label{pred6yearCar}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{pred6Age2015Car.pdf}
+\includegraphics[width=0.6\textwidth]{pred6Age2015Car.pdf}
 \caption{\small Sum of casualties caused by car for each casualty age group in 2015.}
 \label{pred6Age2015Car}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{pred6yearMC.pdf}
-\caption{\small Mean casualty rate caused by female motorcyclists for each year.}
+\includegraphics[width=0.6\textwidth]{pred6yearMC.pdf}
+\caption{\small Mean strike rate by female motorcyclists for each year.}
 \label{pred6yearMC}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{pred6Age2015MC.pdf}
+\includegraphics[width=0.6\textwidth]{pred6Age2015MC.pdf}
 \caption{\small Sum of casualties caused by female motorcyclists for each striker age group in 2015.}
 \label{pred6Age2015MC}
 \end{figure}
 
 \section{Predictions for novel scenarios}
 
-We make predictions for the baseline by applying the baseline travel distances to the predictive model. These distances might be the same as the offset in the negative binomial model, or calculated in the same way. It could be a sum over the synthetic population.
+We make predictions for the baseline by constructing what we believe to be the baseline travel distances, i.e. the true amount of travel currently undertaken, and predicting the number of casualties using the predictive model. These distances might be the same as the offset in the fitted model, or calculated in the same way. %It could be a sum over the synthetic population.
 
-To make predictions for supposed scenarios, we alter the distances travelled, ${B}_{a,g,m,t,y,z}$, to reflect the scenario-specific travel behaviour. We can either sum over the synthetic population, or simply re-calculate the baseline distances, e.g., to capture the change resulting from a journey $j_{s_0}$ in the baseline to $j_s$ in the scenario, with the subscript $s$ for scenario, and $s=s_0$ the baseline:
-$${B}_{a(j),g(j),m(j_s),t(j_s),y(j),z(j),s} = {B}_{a(j),g(j),m(j_s),t(j_s),y(j),z(j),s_0}+D_{j_s,t(j_s)}$$
-$$B_{a(j),g(j),m(j_{s_0}),t_{s_0},y(j),z(j),s} = B_{a(j),g(j),m(j_{s_0}),t_{s_0},y(j),z(j),s_0}-D_{j_{s_0},t_{s_0}}$$
+To make predictions for supposed scenarios, we create a new distance-travelled array, ${C}_{a,g,m,t,y,z,s}$, to reflect the scenario-specific travel behaviour. The new index $s$ denotes the scenario. $C$ is equivalent to $\tilde{B}$; indeed, we might have ${C}_{a,g,m,t,y,z,s_0}=\tilde{B}_{a,g,m,t,y,z}$, where $s=s_0$ denotes the baseline.
+
+We can create $C$ for a new scenario by re-allocating the distance travelled, $D_j$, for every journey that changes mode from baseline to scenario. For baseline journey  $j_{s_0}$  and scenario journey $j_s$, with modes $m(j_{s_0})$ and $m(j_s)$ and distances on each road are $f_{m(j_{s_0}),t}(D_{j})$ and $f_{m(j_s),t}(D_{j})$, we add the distance to the new scenario and subtract from the baseline as follows:
+$${C}_{a(j),g(j),m(j_s),t,y(j),z(j),s} = {C}_{a(j),g(j),m(j_s),t,y(j),z(j),s_0}+f_{m(j_s),t}(D_{j}),$$
+$$C_{a(j),g(j),m(j_{s_0}),t,y(j),z(j),s} = C_{a(j),g(j),m(j_{s_0}),t,y(j),z(j),s_0}-f_{m(j_{s_0}),t}(D_{j}).$$
+
+The general formula for application of this to all items in the distance array is:
+$${C}_{a,g,m,t,y,z,s} = {C}_{a,g,m,t,y,z,s_0}\;+\;\smashoperator{\sum_{\substack{j:a(j)=a,\\g(j)=g,m(j_s)=m,\\m(j_{s_0})\neq m,\\y(j)=y,z(j)=z}}}\;f_{m(j_s),t}(D_{j})\;-\;\smashoperator{\sum_{\substack{j:a(j)=a,\\g(j)=g,m(j_s)\neq m,\\m(j_{s_0})= m,\\y(j)=y,z(j)=z}}}\;f_{m(j_{s_0}),t}(D_{j}).$$
+
+
 
 
 \clearpage
