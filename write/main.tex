@@ -431,9 +431,9 @@ The Stats19 database lists 2,137,625 road-traffic injuries and fatalities for th
 \label{descriptive}
 \end{figure}
 
-Before proceeding, we omit any entries with missing data, which includes any entry with modes ``no other vehicle'' or ``other or unknown''. Then 1,473,533 entries remain. \hl{OR: we have a separate model for ``no other vehicle'' that includes data from other sources.}
+Before proceeding, we omit any entries with missing data, which includes any entry with modes ``no other vehicle'' or ``other or unknown''. Then 1,473,533 entries remain. We have a separate model for ``no other vehicle'' that includes data from other sources.
 
-Finally, we select age groupings for both the casualty and striker ages, so that the number of age groups is reduced from 106 to \hl{6? 10?} for each. The reduced number of groups allows for greater computational efficiency. Age groups are chosen as the quantiles extracted from the data shown in Figure \ref{descriptive}.
+Finally, we select age groupings for both the casualty and striker ages, so that the number of age groups is reduced from 106 to 6 for each. The reduced number of groups allows for greater computational efficiency. Age groups are chosen as the quantiles extracted from the data shown in Figure \ref{descriptive}.
 
 %\section{Missing data}
 
@@ -481,7 +481,7 @@ The model matrix is represented by $X$ and $\beta$ are the coefficients to fit. 
 
 All covariates we might use are listed at the beginning of Section \ref{injuries}. In addition to using these as predictors alone, we use interactions between them as covariates. To begin, we choose which pairs, triplets, and quadruplets of interacting covariates to include in parametrising the rate parameter $\lambda$.
 
-To build the negative binomial regression model, we start from the main-effects model (which consists of nine covariates as predictors, and no interactions), and add one interaction at a time. The ``year'' covariate is modelled as a smooth spline with two knots, and both age variables are modelled as a smooth spline with \hl{five} knots. 
+To build the negative binomial regression model, we start from the main-effects model (which consists of nine covariates as predictors, and no interactions), and add one interaction at a time. The ``year'' covariate is modelled as a smooth spline with two knots, and both age variables are modelled as a smooth spline with knots at each age median. 
 
 We aim to minimise Akaike's information criterion (AIC) \citep{Akaike1983} in the model we build. This metric quantifies goodness of fit with an accompany penalty for the complexity of the model, proxied by the number of parameters.
 
@@ -511,15 +511,15 @@ These plots highlight some problems with the distance data. E.g., there is a ver
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.6\textwidth]{NOVpredYear.pdf}
+\includegraphics[width=0.6\textwidth]{NOVpredYearKSI.pdf}
 \caption{\small Mean casualty rate caused by no other vehicle for each year.}
 \label{NOVpredYear}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.6\textwidth]{NOVpredAge2015.pdf}
-\caption{\small Sum of casualties caused by no other vehicle for each casualty age group in 2015.}
+\includegraphics[width=0.6\textwidth]{NOVpredAge2015sumFatalities.pdf}
+\caption{\small Sum of fatalities caused by no other vehicle for each casualty age group in 2015.}
 \label{NOVpredAge2015}
 \end{figure}
 
