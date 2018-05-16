@@ -11,10 +11,10 @@ fit <- readRDS(fit.file)
 
 #######################################
 x_axes <- c("strike_age","strike_male","roadtype","cas_severity","year","cas_male","cas_mode","strike_mode","cas_age")
-#------edit------#--------------------#
-## choose what to plot over
+#------EDIT------#--------------------------#
+## Step 1: choose what to plot over
 x_axis        <- x_axes[9]
-## set whether to sum over levels or use an individual level.
+## Step 2: choose which categories to keep from each covariate
 years         <- 2015 # 2005:2015
 severity      <- 'Fatal' # c('Fatal','Serious','Slight')
 road          <- c("Motorway/A(M)", "A","B, C, Unclassified")
@@ -24,22 +24,19 @@ casualty_mode <- 'car/taxi' # c('pedestrian',"cyclist","motorcycle","car/taxi","
 str_mode      <- 'car/taxi' # c('pedestrian',"cyclist","motorcycle","car/taxi","light goods","bus","heavy goods")
 cas_ages      <- unique(test_data$cas_age)
 str_ages      <- unique(test_data$strike_age)
-#----------------#--------------------#
+#----------------#--------------------------#
 
-## RUN: ##
-## subset data
+#------RUN------#
+## Step 3: subset data
 test_data0 <- subset(test_data,year%in%years&cas_male%in%cas_gen&cas_severity%in%severity&cas_mode%in%casualty_mode&
     strike_mode%in%str_mode&strike_age%in%str_ages&cas_age%in%cas_ages&roadtype%in%road&strike_male%in%str_gen)
-## plot result
+## Step 4: plot result
 plot_observed_and_prediction(x_axis=x_axis,test_data0=test_data0,fit=fit,rate_per_casualty=T,rate_per_striker=F)
+#---------------#
 
 #######################################
-## EXAMPLES
+#------EXAMPLES------#
 ## Ex 1
-## plot rate of car/car fatality, by casualty age per casualty distance
-test_data0 <- subset(test_data,year%in%years&cas_male%in%cas_gen&cas_severity%in%severity&cas_mode%in%casualty_mode&
-                       strike_mode%in%str_mode&strike_age%in%str_ages&cas_age%in%cas_ages&roadtype%in%road&strike_male%in%str_gen)
-plot_observed_and_prediction(x_axis=x_axis,test_data0=test_data0,fit=fit,rate_per_casualty=T,rate_per_striker=F)
 ## plot rate of car/car fatality, by striker age per striker distance
 x_axis <- 'strike_age'
 plot_observed_and_prediction(x_axis=x_axis,test_data0=test_data0,fit=fit,rate_per_casualty=F,rate_per_striker=T)
@@ -78,5 +75,5 @@ str_gen       <- 1 ## 0 is female, 1 is male
 test_data0 <- subset(test_data,year%in%years&cas_male%in%cas_gen&cas_severity%in%severity&cas_mode%in%casualty_mode&
     strike_mode%in%str_mode&strike_age%in%str_ages&cas_age%in%cas_ages&roadtype%in%road&strike_male%in%str_gen)
 plot_observed_and_prediction(x_axis=x_axis,test_data0=test_data0,fit=fit,rate_per_casualty=F,rate_per_striker=T)
-
+#--------------------#
 
