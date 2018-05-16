@@ -31,6 +31,11 @@ str_ages      <- unique(test_data$strike_age)
 test_data0 <- subset(test_data,year%in%years&cas_male%in%cas_gen&cas_severity%in%severity&cas_mode%in%casualty_mode&
     strike_mode%in%str_mode&strike_age%in%str_ages&cas_age%in%cas_ages&roadtype%in%road&strike_male%in%str_gen)
 ## Step 4: plot result
+# x_axis is what to plot over;
+# test_data0 is the subsetted dataset;
+# fit is the glm object loaded from file;
+# rate_per_casualty is a logical switch: set to 'TRUE' to divide by casualty exposure;
+# rate_per_striker is a logical switch: set to 'TRUE' to divide by striker exposure.
 plot_observed_and_prediction(x_axis=x_axis,test_data0=test_data0,fit=fit,rate_per_casualty=T,rate_per_striker=F)
 #---------------#
 
